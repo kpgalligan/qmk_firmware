@@ -33,3 +33,4 @@ RAW_ENABLE = no             # Raw device
 AUTO_SHIFT_ENABLE = no      # Auto Shift
 LEADER_ENABLE = yes
 TAP_DANCE_ENABLE=yes
+CONSOLE_ENABLE = yes

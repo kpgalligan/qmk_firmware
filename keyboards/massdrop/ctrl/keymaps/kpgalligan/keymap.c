@@ -1,5 +1,5 @@
 #include QMK_KEYBOARD_H
-#include <print.h>
+//#include <print.h>
 
 enum ctrl_keycodes {
     L_BRI = SAFE_RANGE, //LED Brightness Increase
@@ -290,7 +290,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
  */
 int cur_dance (qk_tap_dance_state_t *state) {
   if (state->count == 1) {
-    if (state->interrupted || !state->pressed)  return SINGLE_TAP;
+    if (/*state->interrupted ||*/ !state->pressed)  return SINGLE_TAP;
       //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
     else return SINGLE_HOLD;
   }
@@ -321,6 +321,7 @@ static tap xtap_state = {
 };
 
 void lshift_finished (qk_tap_dance_state_t *state, void *user_data) {
+//  uprintf("lshift_finished %d keycode\n", state->keycode);
   xtap_state.state = cur_dance(state);
   switch (xtap_state.state) {
     case SINGLE_TAP:
@@ -341,6 +342,7 @@ void lshift_finished (qk_tap_dance_state_t *state, void *user_data) {
 }
 
 void lshift_reset (qk_tap_dance_state_t *state, void *user_data) {
+//  uprintf("lshift_reset %d keycode\n", state->keycode);
   switch (xtap_state.state) {
     case SINGLE_TAP:
       unregister_code(KC_9);
