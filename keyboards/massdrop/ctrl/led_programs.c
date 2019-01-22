@@ -19,6 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "led_matrix.h"
 
 //Teal <-> Salmon
+led_setup_t leds_teal_salmon_scroll[] = {
+    { .hs = 0, .he = 100, .rs = 160, .re = 220, .gs = 160, .ge = 80, .bs = 160, .be = 84, .ef = EF_OVER | EF_SCR_R },
+//    { .hs = 20, .he = 40,  .rs = 0,  .re = 0,  .gs = 60, .ge = 120, .bs = 0, .be = 0, .ef = EF_OVER | EF_SCR_R },
+//    { .hs = 40, .he = 60,  .rs = 0,  .re = 0,  .gs = 120, .ge = 180, .bs = 0, .be = 0, .ef = EF_OVER | EF_SCR_R },
+//    { .hs = 60, .he = 80,  .rs = 0,  .re = 0, .gs = 180, .ge = 255, .bs = 0, .be = 0, .ef = EF_OVER | EF_SCR_R },
+//    { .hs = 80, .he = 100, .rs = 0,  .re = 0, .gs = 255, .ge = 255, .bs = 0, .be = 0, .ef = EF_OVER | EF_SCR_R },
+    { .end = 1 },
+};
+
+//Teal <-> Salmon
 led_setup_t leds_teal_salmon[] = {
     { .hs = 0,  .he = 33,  .rs = 24,  .re = 24,  .gs = 215, .ge = 215, .bs = 204, .be = 204, .ef = EF_NONE },
     { .hs = 33, .he = 66,  .rs = 24,  .re = 255, .gs = 215, .ge = 114, .bs = 204, .be = 118, .ef = EF_NONE },
@@ -104,6 +114,7 @@ led_setup_t leds_rainbow_s[] = {
 //Add the new animation name to the list below following its format
 
 void *led_setups[] = {
+    leds_teal_salmon_scroll,
     leds_teal_salmon,
     leds_off,
     leds_rainbow_s,

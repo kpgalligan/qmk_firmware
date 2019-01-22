@@ -106,16 +106,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define RSPC_KEY KC_LBRC
 
-#define LEADER_TIMEOUT 300
+#define LEADER_TIMEOUT 500
 
-#define MOUSEKEY_DELAY             100
-#define MOUSEKEY_INTERVAL          50
-#define MOUSEKEY_MAX_SPEED         15
+#define MOUSEKEY_DELAY             70
+#define MOUSEKEY_INTERVAL          15
+#define MOUSEKEY_MAX_SPEED         7
 #define MOUSEKEY_TIME_TO_MAX       20
 #define MOUSEKEY_WHEEL_MAX_SPEED   8
 #define MOUSEKEY_WHEEL_TIME_TO_MAX 40
 
-#define TAPPING_TERM 200
+#define TAPPING_TERM 350
 
 /* Force boot in NKRO mode */
 //#define FORCE_NKRO

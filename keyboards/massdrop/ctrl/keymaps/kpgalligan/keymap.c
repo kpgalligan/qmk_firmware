@@ -1,5 +1,5 @@
 #include QMK_KEYBOARD_H
-//#include <print.h>
+#include <print.h>
 
 enum ctrl_keycodes {
     L_BRI = SAFE_RANGE, //LED Brightness Increase
@@ -87,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, X_____X, X_____X, KC_MS_UP, X_____X, X_____X, KC_MS_WH_LEFT, KC_MS_WH_DOWN, KC_MS_WH_UP, KC_MS_WH_RIGHT, X_____X, X_____X, X_____X, X_____X,   X_____X, X_____X, KC_MS_WH_DOWN, \
         X_____X, X_____X, KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT, X_____X, X_____X, KC_MS_BTN1, KC_MS_BTN2, KC_MS_BTN3, X_____X, X_____X, X_____X, \
         X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, TG_NKRO, X_____X, X_____X, X_____X, X_____X, X_____X,                              KC_MS_UP, \
-        KC_MS_BTN1, KC_MS_BTN2, KC_TRNS,                   X_____X,                            KC_MS_BTN1, KC_MS_BTN2, TO(_COLEMAK), X_____X,            KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT \
+        KC_MS_BTN1, KC_MS_BTN2, KC_TRNS,                   X_____X,                            KC_MS_BTN1, KC_MS_BTN2, TG(_MOUSE), X_____X,            KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT \
     ),
     /*
     [X] = LAYOUT(
@@ -103,6 +103,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
+  led_animation_speed = 2.0f;
+//  led_lighting_mode = LED_MODE_KEYS_ONLY;
 };
 
 LEADER_EXTERNS();
@@ -111,24 +113,32 @@ bool capsPressed = false;
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
-  LEADER_DICTIONARY() {
+  LEADER_DICTIONARY()
+  {
     leading = false;
     leader_end();
 
-    SEQ_ONE_KEY(KC_BSPC) {
-      if(capsPressed){
-        unregister_code(KC_LSFT);
+    SEQ_ONE_KEY(KC_BSPC)
+    {
+      /*if(capsPressed){
+        unregister_code(KC_CAPSLOCK);
       }else{
-        register_code(KC_LSFT);
+        register_code(KC_CAPSLOCK);
       }
       capsPressed = !capsPressed;
+*/
+      unregister_code(KC_CAPSLOCK);
+      register_code(KC_CAPSLOCK);
+//      register_code(KC_CAPSLOCK);
+//      tap_code(KC_CAPSLOCK);
+//      unregister_code(KC_CAPSLOCK);
     }
 
-    SEQ_ONE_KEY(KC_F) {
+    SEQ_ONE_KEY(KC_F)
+    {
       // Anything you can do in a macro.
       SEND_STRING("QMK is awesome.");
     }
-
 
   }
 };
@@ -139,7 +149,7 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static uint32_t key_timer;
-
+  uprintf("process_record_user %d keycode\n", keycode);
     switch (keycode) {
         case L_BRI:
             if (record->event.pressed) {
@@ -401,3 +411,48 @@ qk_tap_dance_action_t tap_dance_actions[] = {
     [TD_RSHIFT_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED(NULL, rshift_finished, rshift_reset)
 };
 
+const uint8_t ANIMATION_ID_NONE = 100;
+uint8_t old_animation_id = 100;
+
+void specialStyle(uint8_t styleId, uint8_t breathing){
+  led_animation_breathing = breathing;
+
+  if(old_animation_id == ANIMATION_ID_NONE){
+    old_animation_id = led_animation_id;
+  }
+
+  led_animation_id = styleId;
+}
+
+void specialUnstyle(void){
+  if(old_animation_id != ANIMATION_ID_NONE){
+    led_animation_breathing = 0;
+    led_animation_id = old_animation_id;
+    old_animation_id = ANIMATION_ID_NONE;
+  }
+}
+
+uint32_t layer_state_set_user(uint32_t state) {
+//    uprintf("layer_state_set_user %d biton32\n", biton32(state));
+    uprintf("led_animation_speed %f \n", led_animation_speed);
+
+  switch (biton32(state)) {
+    case _MOUSE:
+      specialStyle(6, 1);
+      break;
+    default: //  for any other layers, or the default layer
+      specialUnstyle();
+      break;
+  }
+  return state;
+}
+
+
+
+void leader_start(void) {
+  specialStyle(7, 0);
+}
+
+void leader_end(void) {
+  specialUnstyle();
+}
