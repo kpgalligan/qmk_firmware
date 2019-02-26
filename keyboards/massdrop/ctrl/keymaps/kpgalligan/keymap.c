@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
 #include <print.h>
+#include "timer.h"
 
 enum ctrl_keycodes {
     L_BRI = SAFE_RANGE, //LED Brightness Increase
@@ -47,7 +48,8 @@ enum {
 //Tap dance enums
 enum {
     TD_LSHIFT_CTL = 0,
-    TD_RSHIFT_CTL = 1
+    TD_RSHIFT_CTL = 1,
+    TD_CAPS = 2
 };
 
 int cur_dance (qk_tap_dance_state_t *state);
@@ -64,13 +66,14 @@ keymap_config_t keymap_config;
  * if (led_animation_id == led_setups_count - 1) led_animation_id = 0;
                 else led_animation_id++;
  */
+//TD(TD_LSHIFT_CTL), KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, TD(TD_RSHIFT_CTL),                              KC_UP,
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_COLEMAK] = LAYOUT(
         KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,             KC_PSCR, KC_SLCK, KC_PAUS, \
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC,   KC_INS,  KC_HOME, KC_PGUP, \
         KC_TAB,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN,    KC_LBRC, KC_RBRC, KC_BSLS,   KC_DEL,  KC_END,  KC_PGDN, \
         KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT, KC_ENT, \
-        TD(TD_LSHIFT_CTL), KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, TD(TD_RSHIFT_CTL),                              KC_UP, \
+        KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,                              KC_UP, \
         KC_LCTL, KC_LALT, KC_LGUI,                   KC_SPC,                             KC_LEAD, MO(_FUN),   TG(_MOUSE),  KC_RCTL,            KC_LEFT, KC_DOWN, KC_RGHT \
     ),
     [_FUN] = LAYOUT(
@@ -85,7 +88,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,            X_____X, X_____X, X_____X, \
         KC_TRNS, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, X_____X,   X_____X, X_____X, KC_MS_WH_UP, \
         KC_TRNS, X_____X, X_____X, KC_MS_UP, X_____X, X_____X, KC_MS_WH_LEFT, KC_MS_WH_DOWN, KC_MS_WH_UP, KC_MS_WH_RIGHT, X_____X, X_____X, X_____X, X_____X,   X_____X, X_____X, KC_MS_WH_DOWN, \
-        X_____X, X_____X, KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT, X_____X, X_____X, KC_MS_BTN1, KC_MS_BTN2, KC_MS_BTN3, X_____X, X_____X, X_____X, \
+        X_____X, X_____X, KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT, X_____X, X_____X, KC_MS_BTN1, KC_MS_BTN2, KC_MS_BTN3, X_____X, X_____X, KC_MS_BTN1, \
         X_____X, X_____X, X_____X, X_____X, X_____X, X_____X, TG_NKRO, X_____X, X_____X, X_____X, X_____X, X_____X,                              KC_MS_UP, \
         KC_MS_BTN1, KC_MS_BTN2, KC_TRNS,                   X_____X,                            KC_MS_BTN1, KC_MS_BTN2, TG(_MOUSE), X_____X,            KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT \
     ),
@@ -109,10 +112,22 @@ void matrix_init_user(void) {
 
 LEADER_EXTERNS();
 
-bool capsPressed = false;
+static uint16_t cap_timer;
+
+void start_caps(void){
+  uprintf("CAPS press");
+  register_code(KC_CAPSLOCK);
+  cap_timer = timer_read() + 300;
+}
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
+  if(cap_timer > 0 && cap_timer < timer_read()){
+    uprintf("CAPS release");
+    unregister_code(KC_CAPSLOCK);
+    cap_timer = 0;
+  }
+
   LEADER_DICTIONARY()
   {
     leading = false;
@@ -120,18 +135,7 @@ void matrix_scan_user(void) {
 
     SEQ_ONE_KEY(KC_BSPC)
     {
-      /*if(capsPressed){
-        unregister_code(KC_CAPSLOCK);
-      }else{
-        register_code(KC_CAPSLOCK);
-      }
-      capsPressed = !capsPressed;
-*/
-      unregister_code(KC_CAPSLOCK);
-      register_code(KC_CAPSLOCK);
-//      register_code(KC_CAPSLOCK);
-//      tap_code(KC_CAPSLOCK);
-//      unregister_code(KC_CAPSLOCK);
+      start_caps();
     }
 
     SEQ_ONE_KEY(KC_F)
@@ -406,9 +410,32 @@ void rshift_reset (qk_tap_dance_state_t *state, void *user_data) {
   xtap_state.state = 0;
 }
 
+void caps_finished(qk_tap_dance_state_t *state, void *user_data){
+  xtap_state.state = cur_dance(state);
+  switch (xtap_state.state) {
+    case SINGLE_HOLD:
+      start_caps();
+      break;
+    default:
+      register_code(KC_BSPC);
+      break;
+  }
+}
+
+void caps_reset(qk_tap_dance_state_t *state, void *user_data){
+  switch (xtap_state.state) {
+    case SINGLE_HOLD: break;
+    default:
+      unregister_code(KC_BSPC);
+      break;
+  }
+  xtap_state.state = 0;
+}
+
 qk_tap_dance_action_t tap_dance_actions[] = {
     [TD_LSHIFT_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED(NULL, lshift_finished, lshift_reset),
-    [TD_RSHIFT_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED(NULL, rshift_finished, rshift_reset)
+    [TD_RSHIFT_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED(NULL, rshift_finished, rshift_reset),
+    [TD_CAPS]     = ACTION_TAP_DANCE_FN_ADVANCED(NULL, caps_finished, caps_reset),
 };
 
 const uint8_t ANIMATION_ID_NONE = 100;

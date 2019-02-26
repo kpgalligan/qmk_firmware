@@ -28,6 +28,18 @@ led_setup_t leds_teal_salmon_scroll[] = {
     { .end = 1 },
 };
 
+//Sleep
+led_setup_t leds_sleep[] = {
+    { .hs = 0, .he = 100, .rs = 0, .re = 0, .gs = 0, .ge = 0, .bs = 40, .be = 70, .ef = EF_OVER | EF_SCR_R },
+    { .end = 1 },
+};
+
+//Gray
+led_setup_t leds_gray[] = {
+    { .hs = 0, .he = 100, .rs = 102, .re = 102, .gs = 102, .ge = 102, .bs = 102, .be = 102, .ef = EF_NONE },
+    { .end = 1 },
+};
+
 //Teal <-> Salmon
 led_setup_t leds_teal_salmon[] = {
     { .hs = 0,  .he = 33,  .rs = 24,  .re = 24,  .gs = 215, .ge = 215, .bs = 204, .be = 204, .ef = EF_NONE },
@@ -115,15 +127,17 @@ led_setup_t leds_rainbow_s[] = {
 
 void *led_setups[] = {
     leds_teal_salmon_scroll,
+    leds_sleep,
+    leds_gray,
     leds_teal_salmon,
     leds_off,
-    leds_rainbow_s,
-    leds_rainbow_ns,
     leds_yellow,
     leds_red,
     leds_green,
     leds_blue,
     leds_white,
+    leds_rainbow_s,
+    leds_rainbow_ns,
     leds_white_with_red_stripe,
     leds_black_with_red_stripe
 };
