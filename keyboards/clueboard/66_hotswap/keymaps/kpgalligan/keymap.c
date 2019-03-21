@@ -41,7 +41,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB, KC_Q,   KC_W,   KC_F,   KC_P,   KC_G,   KC_J,   KC_L,   KC_U,   KC_Y,   KC_SCLN,   KC_LBRC,KC_RBRC,KC_BSLS,                KC_PGDN, \
   KC_BSPC,KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_H,    KC_N,    KC_E,    KC_I,    KC_O,KC_QUOT,      KC_ENT,                            \
   KC_LSFT,        KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,          KC_RSFT,        KC_UP,           \
-  KC_LCTL,KC_LALT,KC_LGUI,                KC_SPC, KC_SPC,                         KC_RGUI,KC_LEAD,MO(_FL),KC_RCTL,KC_LEFT,KC_DOWN,KC_RGHT),
+  KC_LCTL,KC_LALT,KC_LGUI,                KC_SPC, KC_SPC,                         KC_RGUI,MO(_FL),MO(_FL),KC_RCTL,KC_LEFT,KC_DOWN,KC_RGHT),
 
   /* Keymap _FL: Function Layer
    */
@@ -62,41 +62,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______,_______,_______,                BL_BRTG,BL_BRTG,                        _______,_______,MO(_FL),_______,RGB_HUD,RGB_SAD,RGB_HUI),
 };
 
-LEADER_EXTERNS();
-
-static uint16_t cap_timer;
-
-void start_caps(void){
-  uprintf("CAPS press");
-  register_code(KC_CAPSLOCK);
-  cap_timer = timer_read() + 300;
-}
-
-// Runs constantly in the background, in a loop.
-void matrix_scan_user(void) {
-  if(cap_timer > 0 && cap_timer < timer_read()){
-    uprintf("CAPS release");
-    unregister_code(KC_CAPSLOCK);
-    cap_timer = 0;
-  }
-
-  LEADER_DICTIONARY()
-  {
-    leading = false;
-    leader_end();
-
-    SEQ_ONE_KEY(KC_F)
-    {
-      // Anything you can do in a macro.
-      SEND_STRING("QMK is awesome.");
-    }
-
-    SEQ_ONE_KEY(KC_BSPC)
-    {
-      start_caps();
-    }
-  }
-};
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
